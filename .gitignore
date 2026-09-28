@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.silero_cache/
+*.wav
+.DS_Store
