@@ -1,6 +1,7 @@
 """Speech synthesis backed by Silero TTS (https://github.com/snakers4/silero-models)."""
 
 import io
+import os
 import re
 import threading
 
@@ -16,6 +17,9 @@ LANGUAGE_MODELS = {
 DEFAULT_SAMPLE_RATE = 48000
 MAX_CHUNK_CHARS = 800
 MAX_TEXT_CHARS = 20_000
+
+# Auto-detect CUDA; override with TTS_DEVICE=cpu / cuda / cuda:1 / mps.
+DEVICE = torch.device(os.environ.get("TTS_DEVICE") or ("cuda" if torch.cuda.is_available() else "cpu"))
 
 _lock = threading.Lock()
 _model_cache: dict[str, torch.nn.Module] = {}
@@ -34,7 +38,7 @@ def get_model(language: str) -> torch.nn.Module:
                 speaker=LANGUAGE_MODELS[language],
                 trust_repo=True,
             )
-            model.to(torch.device("cpu"))
+            model.to(DEVICE)
             _model_cache[language] = model
     return model
 
@@ -104,6 +108,7 @@ def synthesize(
         for chunk in chunks
     ]
     full_audio = torch.cat(audio_parts) if len(audio_parts) > 1 else audio_parts[0]
+    full_audio = full_audio.cpu()
 
     buffer = io.BytesIO()
     torchaudio.save(buffer, full_audio.unsqueeze(0), sample_rate, format="wav")

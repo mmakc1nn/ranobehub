@@ -64,6 +64,38 @@ Silero) остаётся на компьютере/сервере, телефо�
 `app/tts.py` (список пакетов — в `models.yml` репозитория
 [snakers4/silero-models](https://github.com/snakers4/silero-models)).
 
+## GPU
+
+Устройство определяется автоматически: если `torch.cuda.is_available()`
+возвращает `True`, модель грузится на `cuda`, иначе — на `cpu`. Переопределить
+можно переменной окружения `TTS_DEVICE` (например `cuda:0` или принудительно
+`cpu`).
+
+Проверить, что сервер реально использует GPU: открой
+`http://localhost:8000/api/device` (или свой адрес) — вернёт
+`{"device": "cuda", "cuda_available": true}`.
+
+Если `cuda_available: false`, хотя видеокарта NVIDIA есть, обычно дело в
+одном из двух:
+
+1. **Стоит CPU-сборка PyTorch.** Проверь: `python -c "import torch; print(torch.__version__)"`
+   — если версия без суффикса `+cuXXX`, значит поставилась CPU-версия.
+   Переустанови под свою версию CUDA (посмотреть драйвер: `nvidia-smi`), например:
+
+   ```bash
+   pip uninstall torch torchaudio -y
+   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+   ```
+
+   (замени `cu121` на версию, подходящую под твой драйвер — таблица на
+   https://pytorch.org/get-started/locally/).
+
+2. **Нет драйверов NVIDIA / CUDA toolkit.** `nvidia-smi` должен показывать
+   видеокарту; если команда не найдена — сначала поставь драйвер NVIDIA.
+
+После переустановки — перезапусти `uvicorn`, модель нужно будет переинициализировать
+(при первом запросе после рестарта она подхватит новое устройство).
+
 ## Ограничения MVP
 
 - Один запрос `/api/speak` ограничен 20 000 символами (см.

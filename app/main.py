@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
@@ -22,6 +23,11 @@ class SpeakRequest(BaseModel):
 @app.get("/api/languages")
 def get_languages():
     return {"languages": list(tts.LANGUAGE_MODELS.keys())}
+
+
+@app.get("/api/device")
+def get_device():
+    return {"device": str(tts.DEVICE), "cuda_available": torch.cuda.is_available()}
 
 
 @app.get("/api/voices")
