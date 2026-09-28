@@ -111,6 +111,6 @@ def synthesize(
     full_audio = full_audio.cpu()
 
     buffer = io.BytesIO()
-    torchaudio.save(buffer, full_audio.unsqueeze(0), sample_rate, format="wav")
+    torchaudio.save(buffer, full_audio.unsqueeze(0), sample_rate, format="wav", backend="soundfile")
     buffer.seek(0)
     return buffer.read()
