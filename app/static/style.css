@@ -23,6 +23,9 @@ body {
   max-width: 760px;
   margin: 0 auto;
   padding: 32px 20px 60px;
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: max(60px, env(safe-area-inset-bottom));
 }
 
 h1 {
@@ -69,20 +72,27 @@ label {
 select,
 button,
 input[type="range"] {
-  font-size: 0.95rem;
+  /* 16px min stops iOS Safari from auto-zooming on focus */
+  font-size: 1rem;
 }
 
 select {
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: var(--panel);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
   min-width: 140px;
+  min-height: 44px;
+}
+
+input[type="range"] {
+  min-height: 44px;
 }
 
 button {
-  padding: 10px 20px;
+  padding: 12px 20px;
+  min-height: 44px;
   background: var(--accent);
   color: #fff;
   border: none;
@@ -97,10 +107,12 @@ button:disabled {
 }
 
 .download {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--accent);
   text-decoration: none;
   font-size: 0.9rem;
-  align-self: center;
 }
 
 .status {
@@ -117,4 +129,38 @@ audio {
 
 .hidden {
   display: none;
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding-top: 20px;
+  }
+
+  textarea {
+    min-height: 200px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  label {
+    width: 100%;
+  }
+
+  select,
+  input[type="range"] {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .download {
+    justify-content: center;
+    align-self: stretch;
+  }
 }
